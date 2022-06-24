@@ -32,7 +32,7 @@ protected:
   static juce::ComponentPeer* getFocusedPeer();
   
   void addPressedKey(int keyCode);
-  void removePresedKey(int keyCode);
+  void removePressedKey(int keyCode);
 
 private:
   std::recursive_mutex pressedKeysMutex;

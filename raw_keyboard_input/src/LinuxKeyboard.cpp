@@ -26,7 +26,7 @@ LinuxKeyboard::LinuxKeyboard(juce::Component* parent) : Keyboard(parent)
                 if (isDown && !wasDown) {
                     addPressedKey(ks);
                 } else if (!isDown && wasDown) {
-                    removePresedKey(ks);
+                    removePressedKey(ks);
                 }
             }
 

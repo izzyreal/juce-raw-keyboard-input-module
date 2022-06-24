@@ -25,7 +25,7 @@ bool Keyboard::processKeyEvent(int keyCode, bool isKeyDown)
       if (isKeyDown)
         t->addPressedKey(keyCode);
       else
-        t->removePresedKey(keyCode);
+        t->removePressedKey(keyCode);
     }
   }
 
@@ -66,7 +66,7 @@ void Keyboard::addPressedKey(int keyCode)
   if (onKeyDownFn) onKeyDownFn(keyCode);
 }
 
-void Keyboard::removePresedKey(int keyCode)
+void Keyboard::removePressedKey(int keyCode)
 {
   std::lock_guard<std::recursive_mutex> lock(pressedKeysMutex);
 
