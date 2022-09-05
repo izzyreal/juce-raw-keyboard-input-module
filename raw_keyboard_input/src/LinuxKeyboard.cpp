@@ -24,9 +24,9 @@ LinuxKeyboard::LinuxKeyboard(juce::Component* parent) : Keyboard(parent)
                 bool isDown = keymap[i >> 3] & masktable[i & 7];
                 KeySym ks = XKeycodeToKeysym(display, (KeyCode) i, 0);
                 if (isDown && !wasDown) {
-                    addPressedKey(ks);
+                    processKeyEvent(ks, true);
                 } else if (!isDown && wasDown) {
-                    removePressedKey(ks);
+                    processKeyEvent(ks, false);
                 }
             }
 
