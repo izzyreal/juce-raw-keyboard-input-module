@@ -2,7 +2,7 @@
 
 std::set<Keyboard*> Keyboard::thisses;
 
-Keyboard::Keyboard(juce::Component* parent) : parent(parent)
+Keyboard::Keyboard(juce::Component* initialParent) : parent(initialParent)
 {
   thisses.emplace(this);
   startTimer(1);
@@ -21,7 +21,7 @@ bool Keyboard::processKeyEvent(int keyCode, bool isKeyDown)
     return false;
 
   for (auto t : thisses) {
-    if (t->peer == focusedPeer) {
+    if (t->peer == focusedPeer || (t->auxPeer != nullptr && t->auxPeer == focusedPeer)) {
       if (isKeyDown)
         t->addPressedKey(keyCode);
       else
@@ -44,12 +44,25 @@ juce::ComponentPeer* Keyboard::getFocusedPeer()
 
 void Keyboard::timerCallback()
 {
-    if (peer == nullptr) {
+    if (peer == nullptr)
+    {
         auto _peer = parent->getPeer();
         if (_peer != nullptr) {
             peer = _peer;
-            stopTimer();
         }
+    }
+
+    if (auxParent != nullptr && auxPeer == nullptr)
+    {
+        auto _auxPeer = auxParent->getPeer();
+        if (_auxPeer != nullptr) {
+            auxPeer = _auxPeer;
+        }
+    }
+
+    if (peer != nullptr && (auxParent == nullptr || auxPeer != nullptr))
+    {
+        stopTimer();
     }
 }
 
@@ -84,4 +97,18 @@ void Keyboard::allKeysUp()
     onKeyUpFn(keyCode);
 
   pressedKeys.clear();
+}
+
+void Keyboard::setAuxParent(juce::Component* newAuxParent)
+{
+    auxParent = newAuxParent;
+
+    if (auxParent == nullptr)
+    {
+        auxPeer = nullptr;
+    }
+    else
+    {
+        startTimer(1);
+    }
 }
