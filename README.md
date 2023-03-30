@@ -4,6 +4,8 @@ Raw keyboard input module for JUCE on Linux, Windows, macOS and iOS
 ## Usage
 
 ```
+#include <raw_keyboard_input/src/Keyboard.h>
+
 MyComponent::MyComponent() // extends juce::Component
 {
   // We need access to the ComponentPeer in order to distinguish
