@@ -6,35 +6,33 @@ LinuxKeyboard::LinuxKeyboard(juce::Component* parent) : Keyboard(parent)
 {
     running = true;
     eventLoop = new std::thread([this](){
+
+        display = XOpenDisplay(NULL);
+
+        if (display == nullptr) {
+            // Handle error, e.g., throw an exception or return
+            return;
+        }
+
+        Window root = DefaultRootWindow(display);
+        XSelectInput(display, root, KeyPressMask | KeyReleaseMask);
+
+        XEvent event;
+
         while (this->running) {
-        if (display == nullptr)
-        {
-            auto xWindowSystem = juce::XWindowSystem::getInstanceWithoutCreating();
-            display = xWindowSystem->getDisplay();
-        }
+            // Blocking call, waits for an event
+            XNextEvent(display, &event);
 
-        if (display != nullptr)
-        {
-            char keymap[32];
-            XQueryKeymap(display, keymap);
-            static unsigned int masktable[8] = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
-
-            for (int i = 0; i < 256; i++) {
-                bool wasDown = prev_keymap[i >> 3] & masktable[i & 7];
-                bool isDown = keymap[i >> 3] & masktable[i & 7];
-                KeySym ks = XKeycodeToKeysym(display, (KeyCode) i, 0);
-                if (isDown && !wasDown) {
-                    processKeyEvent(ks, true);
-                } else if (!isDown && wasDown) {
-                    processKeyEvent(ks, false);
-                }
+            if (event.type == KeyPress) {
+                KeySym ks = XKeycodeToKeysym(display, event.xkey.keycode, 0);
+                processKeyEvent(ks, true);
+            } else if (event.type == KeyRelease) {
+                KeySym ks = XKeycodeToKeysym(display, event.xkey.keycode, 0);
+                processKeyEvent(ks, false);
             }
+        }
 
-            for (int i = 0; i < 32; i++)
-                prev_keymap[i] = keymap[i];
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(2));
-        }
+        XCloseDisplay(display);
     });
 }
 
