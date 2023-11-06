@@ -22,12 +22,10 @@ LinuxKeyboard::LinuxKeyboard(juce::Component* parent) : Keyboard(parent)
                 display = xWindowSystem->getDisplay();
             }
 
-            XGetKeyboardControl(display, &xKeyboardState);
-
-            const int globalAutoRepeat = xKeyboardState.global_auto_repeat;
-
             if (display != nullptr)
             {
+                XGetKeyboardControl(display, &xKeyboardState);
+                const int globalAutoRepeat = xKeyboardState.global_auto_repeat;
                 char keymap[32];
                 XQueryKeymap(display, keymap);
                 static unsigned int masktable[8] = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
