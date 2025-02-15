@@ -8,18 +8,13 @@
 
 namespace juce { class ComponentPeer; }
 
-class Keyboard : public juce::Timer {
+class Keyboard {
 
 public:
   Keyboard(juce::Component* parent);
-  ~Keyboard() override;
+  ~Keyboard();
 
   void setAuxParent(juce::Component* auxParent);
-
-  void timerCallback() override;
-
-  juce::ComponentPeer* peer = nullptr;
-  juce::ComponentPeer* auxPeer = nullptr;
 
   static bool processKeyEvent(int keyCode, bool isKeyDown);
 
@@ -42,5 +37,8 @@ private:
   juce::Component* parent;
   juce::Component* auxParent = nullptr;
   std::set<int> pressedKeys;
+  
+  juce::ComponentPeer* getPeer() const;
+  juce::ComponentPeer* getAuxPeer() const;
   
 };

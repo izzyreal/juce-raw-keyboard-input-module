@@ -5,7 +5,6 @@ std::set<Keyboard*> Keyboard::thisses;
 Keyboard::Keyboard(juce::Component* initialParent) : parent(initialParent)
 {
   thisses.emplace(this);
-  startTimer(1);
 }
 
 Keyboard::~Keyboard()
@@ -21,7 +20,7 @@ bool Keyboard::processKeyEvent(int keyCode, bool isKeyDown)
     return false;
 
   for (auto t : thisses) {
-    if (t->peer == focusedPeer || (t->auxPeer != nullptr && t->auxPeer == focusedPeer)) {
+    if (t->getPeer() == focusedPeer || t->getAuxPeer() == focusedPeer) {
       if (isKeyDown)
         t->addPressedKey(keyCode);
       else
@@ -42,28 +41,14 @@ juce::ComponentPeer* Keyboard::getFocusedPeer()
   return nullptr;
 }
 
-void Keyboard::timerCallback()
+juce::ComponentPeer* Keyboard::getPeer() const
 {
-    if (peer == nullptr)
-    {
-        auto _peer = parent->getPeer();
-        if (_peer != nullptr) {
-            peer = _peer;
-        }
-    }
+  return parent ? parent->getPeer() : nullptr;
+}
 
-    if (auxParent != nullptr && auxPeer == nullptr)
-    {
-        auto _auxPeer = auxParent->getPeer();
-        if (_auxPeer != nullptr) {
-            auxPeer = _auxPeer;
-        }
-    }
-
-    if (peer != nullptr && (auxParent == nullptr || auxPeer != nullptr))
-    {
-        stopTimer();
-    }
+juce::ComponentPeer* Keyboard::getAuxPeer() const
+{
+  return auxParent ? auxParent->getPeer() : nullptr;
 }
 
 bool Keyboard::isKeyDown(int keyCode)
@@ -82,33 +67,20 @@ void Keyboard::addPressedKey(int keyCode)
 void Keyboard::removePressedKey(int keyCode)
 {
   std::lock_guard<std::recursive_mutex> lock(pressedKeysMutex);
-
   if (pressedKeys.count(keyCode) == 1)
     pressedKeys.erase(keyCode);
-
   if (onKeyUpFn) onKeyUpFn(keyCode);
 }
 
 void Keyboard::allKeysUp()
 {
   std::lock_guard<std::recursive_mutex> lock(pressedKeysMutex);
-
   for (auto keyCode : pressedKeys)
     onKeyUpFn(keyCode);
-
   pressedKeys.clear();
 }
 
 void Keyboard::setAuxParent(juce::Component* newAuxParent)
 {
-    auxParent = newAuxParent;
-
-    if (auxParent == nullptr)
-    {
-        auxPeer = nullptr;
-    }
-    else
-    {
-        startTimer(1);
-    }
+  auxParent = newAuxParent;
 }
