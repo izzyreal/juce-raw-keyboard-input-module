@@ -8,7 +8,7 @@ namespace juce { class Component; }
 class WindowsKeyboard : public Keyboard {
 public:
   explicit WindowsKeyboard(juce::Component* parent);
-  ~WindowsKeyboard();
+  ~WindowsKeyboard() override;
   
 private:
 	static LRESULT CALLBACK keyHandler(int keyCode, WPARAM w, LPARAM l);

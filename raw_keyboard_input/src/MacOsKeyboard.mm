@@ -2,14 +2,47 @@
 #include <Foundation/Foundation.h>
 #include <AppKit/AppKit.h>
 
-MacOsKeyboard::MacOsKeyboard(juce::Component* parent) : Keyboard(parent)
+MacOsKeyboard::MacOsKeyboard(juce::Component* parent, const bool shouldSynthesizeSomeKeyRepeatsToUse)
+: Keyboard(parent), shouldSynthesizeSomeKeyRepeats(shouldSynthesizeSomeKeyRepeatsToUse)
 {
+    if (shouldSynthesizeSomeKeyRepeats)
+    {
+        CFNumberRef keyRepeatIntervalPreference = (CFNumberRef)CFPreferencesCopyAppValue(CFSTR("KeyRepeat"), CFSTR(".GlobalPreferences"));
+        if (keyRepeatIntervalPreference) {
+            CFNumberGetValue(keyRepeatIntervalPreference, kCFNumberIntType, &repeatIntervalMs);
+            CFRelease(keyRepeatIntervalPreference);
+        }
+        
+        CFNumberRef repeatDelayPreference = (CFNumberRef)CFPreferencesCopyAppValue(CFSTR("InitialKeyRepeat"), CFSTR(".GlobalPreferences"));
+        if (repeatDelayPreference) {
+            int initialKeyRepeat;
+            CFNumberGetValue(repeatDelayPreference, kCFNumberIntType, &initialKeyRepeat);
+            repeatSynthesisDelayMs = (initialKeyRepeat * 1000) / 60;
+            CFRelease(repeatDelayPreference);
+        }
+    }
   installMonitor();
 }
 
 MacOsKeyboard::~MacOsKeyboard()
 {
+  if (isTimerRunning()) stopTimer();
   removeMonitor();
+}
+
+void MacOsKeyboard::timerCallback()
+{
+    for (auto &keyCodeAndPressDuration : currentlyRepeatingKeyCodes)
+    {
+        if (keyCodeAndPressDuration.second >= repeatSynthesisDelayMs)
+        {
+            Keyboard::processKeyEvent(keyCodeAndPressDuration.first, true);
+        }
+        else
+        {
+            keyCodeAndPressDuration.second += getTimerInterval();
+        }
+    }
 }
 
 void MacOsKeyboard::installMonitor()
@@ -19,13 +52,46 @@ void MacOsKeyboard::installMonitor()
   
   keyDownMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskKeyDown
                                                          handler:^NSEvent*(NSEvent* event) {
+      if (shouldSynthesizeSomeKeyRepeats && std::find(repeatSynthesisKeyCodes.begin(),
+                    repeatSynthesisKeyCodes.end(),
+                    [event keyCode]) != repeatSynthesisKeyCodes.end())
+      {
+          if ([event isARepeat])
+          {
+              // Uh oh, we're getting unexpected true repeats from the monitor anyway.
+              // Let's stop the timer to prevent more trouble.
+              stopTimer();
+          }
+          else
+          {
+              currentlyRepeatingKeyCodes[([event keyCode])] = 0;
+              
+              if (!isTimerRunning())
+              {
+                  startTimer(repeatIntervalMs);
+              }
+          }
+      }
+      
     Keyboard::processKeyEvent([event keyCode], true);
     return event;
   }];
   
   keyUpMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:NSEventMaskKeyUp
                                                        handler:^NSEvent*(NSEvent* event) {
-    Keyboard::processKeyEvent([event keyCode], false);
+      if (shouldSynthesizeSomeKeyRepeats && std::find(repeatSynthesisKeyCodes.begin(),
+                    repeatSynthesisKeyCodes.end(),
+                    [event keyCode]) != repeatSynthesisKeyCodes.end())
+      {
+          currentlyRepeatingKeyCodes.erase([event keyCode]);
+          
+          if (currentlyRepeatingKeyCodes.empty())
+          {
+              stopTimer();
+          }
+      }
+      
+      Keyboard::processKeyEvent([event keyCode], false);
     return event;
   }];
   

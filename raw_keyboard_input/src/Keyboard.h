@@ -12,7 +12,7 @@ class Keyboard {
 
 public:
   Keyboard(juce::Component* parent);
-  ~Keyboard();
+  virtual ~Keyboard();
 
   void setAuxParent(juce::Component* auxParent);
 

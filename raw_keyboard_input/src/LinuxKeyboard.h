@@ -10,7 +10,7 @@ namespace juce { class Component; }
 class LinuxKeyboard : public Keyboard {
 public:
   explicit LinuxKeyboard(juce::Component* parent);
-  ~LinuxKeyboard();
+  ~LinuxKeyboard() override;
 
   void timerCallback() override;
 
