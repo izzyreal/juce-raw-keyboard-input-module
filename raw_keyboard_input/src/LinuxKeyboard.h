@@ -12,8 +12,6 @@ public:
   explicit LinuxKeyboard(juce::Component* parent);
   ~LinuxKeyboard() override;
 
-  void timerCallback() override;
-
 private:
     char prev_keymap[32];
     std::thread* eventLoop;

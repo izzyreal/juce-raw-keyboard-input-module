@@ -64,11 +64,6 @@ LinuxKeyboard::LinuxKeyboard(juce::Component* parent) : Keyboard(parent)
     });
 }
 
-void LinuxKeyboard::timerCallback()
-{
-    Keyboard::timerCallback();
-}
-
 LinuxKeyboard::~LinuxKeyboard()
 {
     running = false;
