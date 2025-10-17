@@ -2,8 +2,8 @@
 #include <Foundation/Foundation.h>
 #include <AppKit/AppKit.h>
 
-MacOsKeyboard::MacOsKeyboard(juce::Component* parent, const bool shouldSynthesizeSomeKeyRepeatsToUse)
-: Keyboard(parent), shouldSynthesizeSomeKeyRepeats(shouldSynthesizeSomeKeyRepeatsToUse)
+MacOsKeyboard::MacOsKeyboard(const bool shouldSynthesizeSomeKeyRepeatsToUse)
+: shouldSynthesizeSomeKeyRepeats(shouldSynthesizeSomeKeyRepeatsToUse)
 {
     if (shouldSynthesizeSomeKeyRepeats)
     {

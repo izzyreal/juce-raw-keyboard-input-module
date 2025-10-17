@@ -1,11 +1,13 @@
 #pragma once
 #include "Keyboard.h"
 
+#include <juce_gui_basics/juce_gui_basics.h>
+
 namespace juce { class Component; }
 
 class MacOsKeyboard : public Keyboard, juce::Timer {
 public:
-  explicit MacOsKeyboard(juce::Component* parent, const bool shouldSynthesizeSomeKeyRepeats = false);
+  explicit MacOsKeyboard(const bool shouldSynthesizeSomeKeyRepeats = false);
     ~MacOsKeyboard() override;
     
     void timerCallback() override;

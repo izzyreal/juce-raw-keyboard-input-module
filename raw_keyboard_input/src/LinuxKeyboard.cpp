@@ -4,7 +4,7 @@
 
 #include <map>
 
-LinuxKeyboard::LinuxKeyboard(juce::Component* parent) : Keyboard(parent)
+LinuxKeyboard::LinuxKeyboard()
 {
     running = true;
     eventLoop = new std::thread([this](){

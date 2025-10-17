@@ -11,20 +11,20 @@
 #include "LinuxKeyboard.h"
 #endif
 
-Keyboard* KeyboardFactory::instance(juce::Component* parent, const bool shouldSynthesizeSomeKeyRepeats)
+Keyboard* KeyboardFactory::instance(const bool shouldSynthesizeSomeKeyRepeats)
 {
 #if defined (__APPLE__)
 #include <TargetConditionals.h>
 #if TARGET_OS_IPHONE
-  return new Keyboard(parent);
+  return new Keyboard();
 #else
-  return new MacOsKeyboard(parent, shouldSynthesizeSomeKeyRepeats);
+  return new MacOsKeyboard(shouldSynthesizeSomeKeyRepeats);
 #endif
 #elif defined (_WIN32)
-  return new WindowsKeyboard(parent);
+  return new WindowsKeyboard();
 #elif defined (__linux__)
-  return new LinuxKeyboard(parent);
+  return new LinuxKeyboard();
 #else
-  return new Keyboard(parent);
+  return new Keyboard();
 #endif
 }

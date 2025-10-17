@@ -1,44 +1,33 @@
 #pragma once
 
-#include <juce_gui_basics/juce_gui_basics.h>
-
 #include <set>
 #include <functional>
 #include <mutex>
 
-namespace juce { class ComponentPeer; }
-
 class Keyboard {
-
 public:
-  Keyboard(juce::Component* parent);
-  virtual ~Keyboard();
+    Keyboard() { thisses.emplace(this); }
+    virtual ~Keyboard() { thisses.erase(this); }
 
-  void setAuxParent(juce::Component* auxParent);
+    static bool processKeyEvent(int keyCode, bool isKeyDown);
 
-  static bool processKeyEvent(int keyCode, bool isKeyDown);
+    bool isKeyDown(int keyCode);
+    void allKeysUp();
 
-  bool isKeyDown(int keyCode);
-  void allKeysUp();
-  
-  std::function<void(int)> onKeyDownFn;
-  std::function<void(int)> onKeyUpFn;
+    std::function<void(int)> onKeyDownFn;
+    std::function<void(int)> onKeyUpFn;
+
+    // New delegate used for focus determination
+    std::function<bool()> hasFocus = [] { return false; };
 
 protected:
-  static std::set<Keyboard*> thisses;
-
-  static juce::ComponentPeer* getFocusedPeer();
-  
-  void addPressedKey(int keyCode);
-  void removePressedKey(int keyCode);
+    static std::set<Keyboard*> thisses;
 
 private:
-  std::recursive_mutex pressedKeysMutex;
-  juce::Component* parent;
-  juce::Component* auxParent = nullptr;
-  std::set<int> pressedKeys;
-  
-  juce::ComponentPeer* getPeer() const;
-  juce::ComponentPeer* getAuxPeer() const;
-  
+    std::recursive_mutex pressedKeysMutex;
+    std::set<int> pressedKeys;
+
+    void addPressedKey(int keyCode);
+    void removePressedKey(int keyCode);
 };
+

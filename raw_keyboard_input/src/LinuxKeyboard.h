@@ -5,11 +5,9 @@
 
 #include <thread>
 
-namespace juce { class Component; }
-
 class LinuxKeyboard : public Keyboard {
 public:
-  explicit LinuxKeyboard(juce::Component* parent);
+  explicit LinuxKeyboard();
   ~LinuxKeyboard() override;
 
 private:
