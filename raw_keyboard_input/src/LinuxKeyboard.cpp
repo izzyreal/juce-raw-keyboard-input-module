@@ -1,5 +1,6 @@
 #include "LinuxKeyboard.h"
 
+#include <juce_gui_basics/juce_gui_basics.h>
 #include <juce_gui_basics/native/juce_XWindowSystem_linux.h>
 
 #include <map>
