@@ -20,6 +20,10 @@ LinuxKeyboard::LinuxKeyboard()
             if (display == nullptr)
             {
                 auto xWindowSystem = juce::XWindowSystem::getInstanceWithoutCreating();
+                if (xWindowSystem == nullptr)
+                {
+                    return;
+                }
                 display = xWindowSystem->getDisplay();
             }
 
