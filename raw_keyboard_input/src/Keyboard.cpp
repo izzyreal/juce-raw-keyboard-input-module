@@ -22,6 +22,12 @@ bool Keyboard::processKeyEvent(int keyCode, bool isKeyDown)
     return handled;
 }
 
+void Keyboard::releaseAllKeys()
+{
+    for (auto* keyboard : thisses)
+        keyboard->allKeysUp();
+}
+
 bool Keyboard::isKeyDown(int keyCode)
 {
     std::lock_guard<std::recursive_mutex> lock(pressedKeysMutex);
@@ -50,4 +56,3 @@ void Keyboard::allKeysUp()
             onKeyUpFn(keyCode);
     pressedKeys.clear();
 }
-

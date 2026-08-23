@@ -10,6 +10,7 @@ public:
     virtual ~Keyboard() { thisses.erase(this); }
 
     static bool processKeyEvent(int keyCode, bool isKeyDown);
+    static void releaseAllKeys();
 
     bool isKeyDown(int keyCode);
     void allKeysUp();
@@ -30,4 +31,3 @@ private:
     void addPressedKey(int keyCode);
     void removePressedKey(int keyCode);
 };
-
